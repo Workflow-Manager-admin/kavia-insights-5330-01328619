@@ -1,0 +1,28 @@
+.dashboard {
+  flex: 1;
+  min-width: 0;
+  padding: 36px 24px 24px 24px;
+  background: var(--accent);
+  overflow-x: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.cards-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-bottom: 12px;
+}
+.charts-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-bottom: 12px;
+}
+@media (max-width: 1050px) {
+  .cards-row, .charts-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+}

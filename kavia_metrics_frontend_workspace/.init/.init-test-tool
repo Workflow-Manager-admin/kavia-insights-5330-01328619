@@ -1,0 +1,4 @@
+{
+    "command": "npm run test",
+    "working_directory": "/home/kavia/workspace/code-generation/kavia-insights-5330-01328619/kavia_metrics_frontend_workspace/kavia_metrics_frontend"
+}

@@ -1,0 +1,35 @@
+.data-table-card {
+  background: #fff;
+  border-radius: 7px;
+  box-shadow:  0 1px 7px 0 rgba(25,47,96,0.05);
+  padding: 18px 10px 10px 10px;
+  margin-bottom: 14px;
+}
+.data-table-title {
+  font-size: 1.13rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #232323;
+}
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1.01rem;
+}
+.data-table th, .data-table td {
+  border-bottom: 1px solid #e7eaed;
+  padding: 7px 16px;
+  text-align: left;
+}
+.data-table th {
+  background: #f8f8fa;
+  color: #383f47;
+  font-weight: 700;
+}
+.data-table td {
+  color: #43474d;
+}
+.center {
+  text-align: center;
+  color: #888;
+}

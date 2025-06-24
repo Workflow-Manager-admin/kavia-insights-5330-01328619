@@ -1,121 +1,90 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import MetricCard from './MetricCard';
-import MetricChart from './MetricChart';
 import DataTable from './DataTable';
 import './Dashboard.css';
 
 // PUBLIC_INTERFACE
+/**
+ * Dashboard for Kavia Metrics using the exact required data structure.
+ * Displays each metric field as a summary card or visualization where appropriate.
+ */
 function Dashboard({ metrics }) {
-  // Extract summary for top metric cards (current period)
-  const summary = useMemo(() => {
-    if (!metrics.length) return null;
-    // Most recent date in filtered
-    const latestDate = metrics.reduce((max, m) => (m.date > max ? m.date : max), metrics[0].date);
-    const latest = metrics.filter(m => m.date === latestDate);
+  if (!metrics.length) {
+    return (
+      <div className="dashboard">
+        <div>No metric data available</div>
+      </div>
+    );
+  }
 
-    // Reduce to sums/averages
-    const sum = (arr, key) => arr.reduce((acc, m) => acc + (m.metrics[key] ?? 0), 0);
-    const avg = (arr, key) => (arr.length ? sum(arr, key) / arr.length : 0);
-
-    return {
-      requests: sum(latest, 'requests'),
-      cost: Math.round(sum(latest, 'cost') * 100) / 100,
-      errorRate: Math.round(avg(latest, 'errorRate') * 1000) / 10,
-      latency: Math.round(avg(latest, 'latency')),
-      date: latestDate,
-      apps: latest.map(m => m.application).join(', ')
-    };
-  }, [metrics]);
-
-  // Historical for chart and table
-  const historical = useMemo(() => {
-    // {labels: [date1, date2,...], series: [{ label, data: [...] }]}
-    const byDate = {};
-    metrics.forEach(m => {
-      if (!byDate[m.date]) byDate[m.date] = [];
-      byDate[m.date].push(m.metrics);
-    });
-    const labels = Object.keys(byDate).sort();
-    // If multiple apps per date (e.g. in ALL view), sum requests/cost
-    function aggForDate(date, key) {
-      const arr = byDate[date] || [];
-      if (key === 'errorRate' || key === 'latency')
-        return Math.round(arr.reduce((a,b) => a + b[key], 0) * 10 / arr.length) / 10;
-      return Math.round(arr.reduce((a,b) => a + b[key], 0));
-    }
-    return {
-      labels,
-      requests: labels.map(d => aggForDate(d, 'requests')),
-      cost: labels.map(d => aggForDate(d, 'cost')),
-      errorRate: labels.map(d => aggForDate(d, 'errorRate')),
-      latency: labels.map(d => aggForDate(d, 'latency')),
-    };
-  }, [metrics]);
+  // Since only one, just use first object
+  const m = metrics[0];
 
   return (
     <div className="dashboard">
       <div className="cards-row">
         <MetricCard
-          title="Total Requests"
-          value={summary ? summary.requests : '--'}
-          subtitle={summary ? summary.apps : ''}
-          icon="▲"
+          title="Application Name"
+          value={m.app_name}
+          subtitle=""
+          icon="🖥️"
           color="var(--primary)"
         />
         <MetricCard
-          title="Cost"
-          value={summary ? `$${summary.cost}` : '--'}
-          subtitle={summary ? `on ${summary.date}` : ''}
-          icon="💰"
+          title="Total Elapsed Time"
+          value={`${m.elapsed_time.toFixed(2)} s`}
+          subtitle="Total time for run"
+          icon="⏱️"
           color="var(--secondary)"
         />
         <MetricCard
-          title="Error Rate"
-          value={summary ? `${summary.errorRate}%` : '--'}
-          subtitle=""
-          icon="⚠️"
-          color="#e03419"
-        />
-        <MetricCard
-          title="Avg Latency"
-          value={summary ? `${summary.latency}ms` : '--'}
-          subtitle=""
-          icon="⏱️"
+          title="Total Cost"
+          value={`$${m.total_cost.toFixed(2)}`}
+          subtitle="Cost for this execution"
+          icon="💰"
           color="#41a8e8"
         />
-      </div>
-      <div className="charts-row">
-        <MetricChart
-          title="Requests Over Time"
-          labels={historical.labels}
-          data={historical.requests}
-          strokeColor="var(--primary)"
-          fillColor="rgba(255,149,0,0.08)"
-        />
-        <MetricChart
-          title="Cost Over Time"
-          labels={historical.labels}
-          data={historical.cost}
-          strokeColor="var(--secondary)"
-          fillColor="rgba(0,17,255,0.04)"
+        <MetricCard
+          title="Date"
+          value={m.date}
+          subtitle=""
+          icon="📅"
+          color="#E87A41"
         />
       </div>
-      <div className="charts-row">
-        <MetricChart
-          title="Error Rate (%)"
-          labels={historical.labels}
-          data={historical.errorRate}
-          yMax={15}
-          minTicks={3}
-          strokeColor="#e03419"
-          fillColor="rgba(224,52,25,0.09)"
+      <div className="cards-row">
+        <MetricCard
+          title="CGA Version"
+          value={m.cga_version}
+          subtitle=""
+          icon="🔢"
+          color="#82D400"
         />
-        <MetricChart
-          title="Avg Latency (ms)"
-          labels={historical.labels}
-          data={historical.latency}
-          strokeColor="#41a8e8"
-          fillColor="rgba(65,168,232,0.065)"
+        <MetricCard
+          title="Model"
+          value={m.model}
+          subtitle=""
+          icon="🤖"
+          color="#00B2EE"
+        />
+        <MetricCard
+          title="Streaming"
+          value={m.streaming ? "Enabled" : "Disabled"}
+          subtitle=""
+          icon={m.streaming ? "📡" : "⛔"}
+          color={m.streaming ? "#FF9500" : "#888"}
+        />
+        <MetricCard
+          title="Project Link"
+          value={
+            <a href={/^https?:\/\//.test(m.project_link) ? m.project_link : `https://${m.project_link.replace(/^\/\//, '')}`} 
+               target="_blank" rel="noopener noreferrer" style={{ color: "var(--secondary)", wordBreak: "break-all" }}>
+              {m.project_link.replace(/^\/\//, '')}
+            </a>
+          }
+          subtitle=""
+          icon="🔗"
+          color="#1A1A1A"
         />
       </div>
       <div style={{ marginTop: 24 }}>

@@ -17,21 +17,31 @@ function Dashboard({ metrics }) {
     );
   }
 
-  // Determine if chart is useful: use 'elapsed_time' over date as line plot.
-  const showChart = metrics.length > 1;
-  let chartSection = null;
+  // Determine if chart is useful for more than one data record
+  const showCharts = metrics.length > 1;
+  let chartsSection = null;
 
-  if (showChart) {
+  if (showCharts) {
     const dates = metrics.map((m) => m.date.split(" ")[0]);
     const elapsed = metrics.map((m) => m.elapsed_time);
-    chartSection = (
+    const totalCost = metrics.map((m) => m.total_cost);
+
+    chartsSection = (
       <div className="charts-row" style={{ marginBottom: 16 }}>
         <MetricChart
           labels={dates}
           data={elapsed}
-          title={"Elapsed Time Over Runs"}
-          strokeColor={"var(--primary)"}
-          fillColor={"rgba(255,149,0,0.09)"}
+          title="Elapsed Time Over Runs"
+          strokeColor="var(--primary)"
+          fillColor="rgba(255,149,0,0.09)"
+          minTicks={4}
+        />
+        <MetricChart
+          labels={dates}
+          data={totalCost}
+          title="Total Cost Over Runs"
+          strokeColor="var(--secondary)"
+          fillColor="rgba(0,17,255,0.07)"
           minTicks={4}
         />
       </div>
@@ -40,7 +50,7 @@ function Dashboard({ metrics }) {
 
   return (
     <div className="dashboard">
-      {chartSection}
+      {chartsSection}
       <div>
         <DataTable data={metrics} />
       </div>

@@ -8,12 +8,6 @@
   flex-direction: column;
   gap: 28px;
 }
-.cards-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-  margin-bottom: 12px;
-}
 .charts-row {
   display: flex;
   flex-wrap: wrap;
@@ -21,7 +15,7 @@
   margin-bottom: 12px;
 }
 @media (max-width: 1050px) {
-  .cards-row, .charts-row {
+  .charts-row {
     flex-direction: column;
     gap: 16px;
   }

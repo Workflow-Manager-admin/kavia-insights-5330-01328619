@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import './App.css';
 import SideNav from './components/SideNav';
 import Dashboard from './components/Dashboard';
@@ -76,6 +76,41 @@ function App() {
   // For SideNav
   const applications = [...new Set(metrics.map(m => m.app_name))];
 
+  // Sorting State
+  const [sortField, setSortField] = useState("date");
+  const [sortOrder, setSortOrder] = useState("desc");
+
+  // Memoized sorted metrics for Dashboard
+  const sortedMetrics = useMemo(() => {
+    // Create a shallow copy for sort
+    let arr = [...metrics];
+    arr.sort((a, b) => {
+      let aVal = a[sortField];
+      let bVal = b[sortField];
+
+      // Special case: date sorts as date
+      if (sortField === 'date') {
+        aVal = new Date(aVal);
+        bVal = new Date(bVal);
+      }
+      // For strings: lexicographic, for numbers: numeric
+      if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
+      if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
+      return 0;
+    });
+    return arr;
+  }, [metrics, sortField, sortOrder]);
+
+  // Table fields for sort dropdown, human-readable
+  const sortFields = [
+    { value: "date", label: "Date" },
+    { value: "app_name", label: "Application" },
+    { value: "elapsed_time", label: "Elapsed Time" },
+    { value: "total_cost", label: "Total Cost" },
+    { value: "cga_version", label: "CGA Version" },
+    { value: "model", label: "Model" }
+  ];
+
   return (
     <div className="app-root light-theme">
       <nav className="navbar">
@@ -88,14 +123,16 @@ function App() {
       <div className="main-content">
         <SideNav
           application={metrics[metrics.length - 1].app_name}
-          setApplication={() => {}}
           applications={applications}
-          dateRange={{ start: "", end: "" }}
-          setDateRange={() => {}}
           allMetricDates={metrics.map(m => m.date.split(" ")[0])}
-          disabled={true}
+          // Sorting controls
+          sortField={sortField}
+          setSortField={setSortField}
+          sortOrder={sortOrder}
+          setSortOrder={setSortOrder}
+          sortFields={sortFields}
         />
-        <Dashboard metrics={metrics} />
+        <Dashboard metrics={sortedMetrics} />
       </div>
       <footer className="footer">
         <span>Kavia Metrics &copy; 2024</span>
